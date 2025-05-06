@@ -13,4 +13,9 @@
 https://data.cityofnewyork.us/Business/SBS-Certified-Business-List/ci93-uc8s/about_data SBS Certified Business List
 - Features in Data that we're interested: Vendor_Formal_Name(Formal Name of the Company), Vendor_DBA(Name the Company goes by), telephone, Address_Line_1, Address_Line_2, City, State, Postcode
 
+https://data.cityofnewyork.us/City-Government/Points-of-Interest/rxuy-2muj Points of Interest Data Set by NYC Open Data
+
+https://data.cityofnewyork.us/Health/DOHMH-New-York-City-Restaurant-Inspection-Results/43nn-pn8j/about_data New York City Restaurant Inspection Results
+- Mostly interested in the date to ensure place still exists
+
 #### Code to explore this database: https://colab.research.google.com/drive/1KqM0r1ZVTOtAm-yUaEZyrNQagDc9Q0Xj?authuser=1#scrollTo=TLTMbwQqrJ7K 
