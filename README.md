@@ -7,3 +7,8 @@
 #### Key Result: Build 2 tools to go through database and ensure data quality using these heuristics. 
 
 #### Key Result: Use these tools to clean 5 datasets.
+
+### Project Scope: New York City
+#### Databases and Descriptions
+https://data.cityofnewyork.us/Business/SBS-Certified-Business-List/ci93-uc8s/about_data SBS Certified Business List
+- Features in Data that we're interested: Vendor_Formal_Name(Formal Name of the Company), Vendor_DBA(Name the Company goes by), telephone, Address_Line_1, Address_Line_2, City, State, Postcode
