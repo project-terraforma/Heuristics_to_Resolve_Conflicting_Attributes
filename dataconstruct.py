@@ -3,9 +3,14 @@ from fuzzywuzzy import fuzz
 
 
 # Load the datasets
-sbs_businesses = pd.read_csv('data/sbs_businesses.csv')
+
+sbs_businesses_url = "https://data.cityofnewyork.us/resource/ci93-uc8s.csv"
+sbs_businesses = pd.read_csv(sbs_businesses_url)
+
 nyc_pois = pd.read_csv('data/nyc_pois.csv')
-nyc_restaurants = pd.read_csv('data/nyc_restaurants.csv')
+
+nyc_restaurants_url = "https://data.cityofnewyork.us/resource/43nn-pn8j.json"
+nyc_restaurants = pd.read_csv(nyc_restaurants_url)
 
 def normalize_name(name):
     """
