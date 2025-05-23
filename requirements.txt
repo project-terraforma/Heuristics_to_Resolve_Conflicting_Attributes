@@ -1,0 +1,11 @@
+pandas
+overturemaps
+pandas
+geopandas
+shapely
+pyarrow
+folium
+matplotlib
+mapclassify
+fuzzywuzzy
+python-Levenshtein

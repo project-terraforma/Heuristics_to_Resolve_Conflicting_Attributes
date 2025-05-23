@@ -1,0 +1,3 @@
+[console_scripts]
+overturemaps=overturemaps.cli:cli
+
