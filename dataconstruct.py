@@ -8,7 +8,7 @@ sbs_businesses_url = "https://data.cityofnewyork.us/resource/ci93-uc8s.csv"
 sbs_businesses = pd.read_csv(sbs_businesses_url)
 
 nyc_pois_url = "https://data.cityofnewyork.us/api/views/t95h-5fsr/rows.csv?date=20250523&accessType=DOWNLOAD"
-nyc_pois = pd.read_csv('data/nyc_pois.csv')
+nyc_pois = pd.read_csv(nyc_pois_url)
 
 nyc_restaurants_url = "https://data.cityofnewyork.us/resource/43nn-pn8j.csv"
 nyc_restaurants = pd.read_csv(nyc_restaurants_url)
@@ -29,14 +29,14 @@ def normalize_address(building, street, zip_code):
     return ''.join(filter(None, parts)).lower()
 
 # Normalize SBS Data
-sbs_businesses['normalized_name'] = sbs_businesses['Vendor_DBA'].fillna(sbs_businesses['Vendor_Formal_Name']).apply(normalize_name)
+sbs_businesses['normalized_name'] = sbs_businesses['vendor_dba'].fillna(sbs_businesses['vendor_formal_name']).apply(normalize_name)
 sbs_businesses['normalized_address'] = sbs_businesses.apply(
-    lambda row: normalize_address(row['Address_Line_1'], '', row['Postcode']), axis=1)
+    lambda row: normalize_address(row['address1'], '', row['zip']), axis=1)
 
 # Normalize Restaurant Data 
-nyc_restaurants['normalized_name'] = nyc_restaurants['DBA'].apply(normalize_name)
+nyc_restaurants['normalized_name'] = nyc_restaurants['dba'].apply(normalize_name)
 nyc_restaurants['normalized_address'] = nyc_restaurants.apply(
-    lambda row: normalize_address(row['BUILDING'], row['STREET'], row['ZIPCODE']), axis=1)
+    lambda row: normalize_address(row['building'], row['street'], row['zipcode']), axis=1)
 
 # Normalize POI Data 
 nyc_pois['normalized_name'] = nyc_pois['FEATURE NAME'].apply(normalize_name)
