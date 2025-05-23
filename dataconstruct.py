@@ -3,15 +3,22 @@ from fuzzywuzzy import fuzz
 
 
 # Load the datasets
+datasets = {
+    "sbs_businesses": "https://data.cityofnewyork.us/resource/ci93-uc8s.csv",
+    "nyc_pois": "https://data.cityofnewyork.us/api/views/t95h-5fsr/rows.csv?date=20250523&accessType=DOWNLOAD",
+    "nyc_restaurants": "https://data.cityofnewyork.us/resource/43nn-pn8j.csv"
+}
 
-sbs_businesses_url = "https://data.cityofnewyork.us/resource/ci93-uc8s.csv"
-sbs_businesses = pd.read_csv(sbs_businesses_url)
-
-nyc_pois_url = "https://data.cityofnewyork.us/api/views/t95h-5fsr/rows.csv?date=20250523&accessType=DOWNLOAD"
-nyc_pois = pd.read_csv(nyc_pois_url)
-
-nyc_restaurants_url = "https://data.cityofnewyork.us/resource/43nn-pn8j.csv"
-nyc_restaurants = pd.read_csv(nyc_restaurants_url)
+def load_datasets():
+    """
+    Load datasets from the provided URLs.
+    """
+    for name, url in datasets.items():
+        try:
+            datasets[name] = pd.read_csv(url)
+            print(f"Loaded {name} with {len(datasets[name])} rows.")
+        except Exception as e:
+            print(f"Failed to load {name}: {e}")
 
 def normalize_name(name):
     """
@@ -27,6 +34,13 @@ def normalize_address(building, street, zip_code):
     """
     parts = [str(building).strip(), str(street).strip(), str(zip_code).strip()]
     return ''.join(filter(None, parts)).lower()
+
+# Load datasets
+load_datasets()
+# Extract datasets
+sbs_businesses = datasets["sbs_businesses"]
+nyc_pois = datasets["nyc_pois"]
+nyc_restaurants = datasets["nyc_restaurants"]
 
 # Normalize SBS Data
 sbs_businesses['normalized_name'] = sbs_businesses['vendor_dba'].fillna(sbs_businesses['vendor_formal_name']).apply(normalize_name)
