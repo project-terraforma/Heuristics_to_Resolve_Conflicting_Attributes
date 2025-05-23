@@ -7,9 +7,10 @@ from fuzzywuzzy import fuzz
 sbs_businesses_url = "https://data.cityofnewyork.us/resource/ci93-uc8s.csv"
 sbs_businesses = pd.read_csv(sbs_businesses_url)
 
+nyc_pois_url = "https://data.cityofnewyork.us/api/views/t95h-5fsr/rows.csv?date=20250523&accessType=DOWNLOAD"
 nyc_pois = pd.read_csv('data/nyc_pois.csv')
 
-nyc_restaurants_url = "https://data.cityofnewyork.us/resource/43nn-pn8j.json"
+nyc_restaurants_url = "https://data.cityofnewyork.us/resource/43nn-pn8j.csv"
 nyc_restaurants = pd.read_csv(nyc_restaurants_url)
 
 def normalize_name(name):
