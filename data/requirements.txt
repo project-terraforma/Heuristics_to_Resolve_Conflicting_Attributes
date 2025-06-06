@@ -9,3 +9,5 @@ matplotlib
 mapclassify
 fuzzywuzzy
 python-Levenshtein
+tqdm
+tabulate
