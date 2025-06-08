@@ -11,3 +11,7 @@ fuzzywuzzy
 python-Levenshtein
 tqdm
 tabulate
+sodapy
+rapidfuzz
+osmnx
+duckdb

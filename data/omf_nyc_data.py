@@ -1,10 +1,12 @@
-import overturemaps, geopandas as gpd, pandas as pd, json
+import geopandas as gpd, pandas as pd, json
 from shapely import wkt
 from difflib import SequenceMatcher
+from overturemaps import core
 
 # ────────────────────────────────────────────────────────────────
 # 1. Overture “place” layer (NYC)
 # ────────────────────────────────────────────────────────────────
+
 bbox = (-74.25909, 40.477399, -73.700272, 40.917577)
 gdf_place = overturemaps.core.geodataframe("place", bbox=bbox).cx[
     bbox[0]:bbox[2], bbox[1]:bbox[3]
@@ -51,7 +53,7 @@ joined = gpd.sjoin_nearest(
     gdf_poi[[title_col, "geometry"]],
     how="left",
     distance_col="match_dist_deg",
-    max_distance=0.01
+    max_distance=0.001
 ).rename(columns={title_col: "match_poi_name"})
 
 # distance → metres  (85 km ≃ 1° at NYC latitude)
