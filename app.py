@@ -15,7 +15,7 @@ df_overture = load_csv(overture_path)
 # --- Sidebar ---
 st.sidebar.title("Datasets")
 st.sidebar.markdown("**Available Datasets**")
-st.sidebar.radio("Select a dataset", options=["nyc_restaurants.csv", "overture_data.csv"])
+st.sidebar.radio("Select a dataset", options=["nyc_restaurants.csv"])
 
 # Plus button at bottom
 st.sidebar.markdown("---")
@@ -61,27 +61,29 @@ st.markdown(
 
 # --- Features Box ---
 st.markdown("### Features Box")
-st.markdown('<div class="features-box">', unsafe_allow_html=True)
 
-cols = df_dataset.columns
-for col in cols:
-    st.markdown(f'<div class="column-header">{col}</div>', unsafe_allow_html=True)
-    st.markdown('<div class="desc-text">Description</div>', unsafe_allow_html=True)
+# Create a new DataFrame with column names and descriptions
+features_data = pd.DataFrame([['Description'] * len(df_dataset.columns)],
+                             columns=df_dataset.columns,
+                             index=["Description"])
 
+# Wrap it in a styled box
+# st.markdown('<div class="features-box">', unsafe_allow_html=True)
+st.dataframe(features_data, use_container_width=True, height=150)
 st.markdown('</div>', unsafe_allow_html=True)
 
 # --- Bottom Boxes (split view) ---
 col1, col2 = st.columns(2)
 
 with col1:
-    st.markdown("### Dataset Box")
-    st.markdown('<div class="data-box">', unsafe_allow_html=True)
-    st.dataframe(df_dataset.head(50), use_container_width=True, height=500)
+    st.markdown("### Overture Box")
+    #st.markdown('<div class="data-box">', unsafe_allow_html=True)
+    st.dataframe(df_overture.head(50), use_container_width=True, height=500)
     st.markdown('</div>', unsafe_allow_html=True)
 
 with col2:
-    st.markdown("### Overture Box")
-    st.markdown('<div class="data-box">', unsafe_allow_html=True)
-    st.dataframe(df_overture.head(50), use_container_width=True, height=500)
+    st.markdown("### Dataset Box")
+    #st.markdown('<div class="data-box">', unsafe_allow_html=True)
+    st.dataframe(df_dataset.head(50), use_container_width=True, height=500)
     st.markdown('</div>', unsafe_allow_html=True)
 
