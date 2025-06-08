@@ -1,87 +1,87 @@
 import streamlit as st
 import pandas as pd
-import geopandas as gpd
 
-# -----------------------------
-# Load datasets
-# -----------------------------
+# Load data
 @st.cache_data
-def load_datasets():
-    overture_data = gpd.read_file("overture_data.geojson")
-    other_data = pd.read_csv("nyc_restaurants.csv")
-    return overture_data, other_data
+def load_csv(path):
+    return pd.read_csv(path)
 
-overture_df, other_df = load_datasets()
+dataset_path = "./tmp/nyc_restaurants.csv"
+overture_path = "./tmp/overture_data.csv"
 
-# -----------------------------
-# Sidebar
-# -----------------------------
+df_dataset = load_csv(dataset_path)
+df_overture = load_csv(overture_path)
+
+# --- Sidebar ---
 st.sidebar.title("Datasets")
-datasets = ["nyc_restaurants.csv", "overture_data.geojson"]
+st.sidebar.markdown("**Available Datasets**")
+st.sidebar.radio("Select a dataset", options=["nyc_restaurants.csv", "overture_data.csv"])
 
-# Display without bullet points using markdown and no unordered list markers
-for dataset in datasets:
-    st.sidebar.markdown(f"{dataset}", unsafe_allow_html=True)
-
+# Plus button at bottom
 st.sidebar.markdown("---")
-st.sidebar.button("➕ Add Dataset")
+if st.sidebar.button("➕ Add Dataset"):
+    st.sidebar.success("Feature not implemented yet!")
 
-# -----------------------------
-# Main Layout
-# -----------------------------
+# --- Main Page Layout ---
+
+# Set overall layout style
 st.markdown(
     """
     <style>
-        .container-box {
-            border: 1px solid #CCC;
-            padding: 16px;
-            margin-bottom: 16px;
-            border-radius: 6px;
+        .features-box {
+            border: 1px solid #ccc;
+            padding: 10px;
+            margin-bottom: 20px;
+            height: 33vh;
+            overflow-y: auto;
+            border-radius: 8px;
+            background-color: #f9f9f9;
+        }
+        .data-box {
+            border: 1px solid #ccc;
+            padding: 10px;
+            height: 58vh;
+            overflow-y: auto;
+            border-radius: 8px;
+            background-color: #fff;
         }
         .column-header {
             font-weight: bold;
+            margin-bottom: 5px;
         }
-        .scrollable-box {
-            max-height: 500px;
-            overflow-y: auto;
-            border: 1px solid #CCC;
-            padding: 8px;
-            border-radius: 6px;
+        .desc-text {
+            font-style: italic;
+            color: #666;
+            margin-bottom: 10px;
         }
     </style>
     """,
-    unsafe_allow_html=True,
+    unsafe_allow_html=True
 )
 
-# -----------------------------
-# Features Box (top 1/3 of screen)
-# -----------------------------
-st.markdown("### Features")
-st.markdown('<div class="container-box">', unsafe_allow_html=True)
+# --- Features Box ---
+st.markdown("### Features Box")
+st.markdown('<div class="features-box">', unsafe_allow_html=True)
 
-cols = st.columns(len(other_df.columns))
-
-for i, col_name in enumerate(other_df.columns):
-    with cols[i]:
-        st.markdown(f"<div class='column-header'>{col_name}</div>", unsafe_allow_html=True)
-        st.caption("Description")  # Placeholder
+cols = df_dataset.columns
+for col in cols:
+    st.markdown(f'<div class="column-header">{col}</div>', unsafe_allow_html=True)
+    st.markdown('<div class="desc-text">Description</div>', unsafe_allow_html=True)
 
 st.markdown('</div>', unsafe_allow_html=True)
 
-# -----------------------------
-# Dataset Box (left) and Overture Box (right)
-# -----------------------------
-left_col, right_col = st.columns(2)
+# --- Bottom Boxes (split view) ---
+col1, col2 = st.columns(2)
 
-with left_col:
+with col1:
     st.markdown("### Dataset Box")
-    st.markdown('<div class="scrollable-box">', unsafe_allow_html=True)
-    st.dataframe(other_df.head(50), use_container_width=True)
+    st.markdown('<div class="data-box">', unsafe_allow_html=True)
+    st.dataframe(df_dataset.head(50), use_container_width=True, height=500)
     st.markdown('</div>', unsafe_allow_html=True)
 
-with right_col:
+with col2:
     st.markdown("### Overture Box")
-    st.markdown('<div class="scrollable-box">', unsafe_allow_html=True)
-    st.dataframe(overture_df.head(50), use_container_width=True)
+    st.markdown('<div class="data-box">', unsafe_allow_html=True)
+    st.dataframe(df_overture.head(50), use_container_width=True, height=500)
     st.markdown('</div>', unsafe_allow_html=True)
 
