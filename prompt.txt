@@ -1,0 +1,76 @@
+ChatGPT Prompt to create the Streamlit Site:
+
+Ask about the overall format:
+I need some advcie about how to strucutre my project. 
+
+
+Version 1: (get initial UI working)
+Can you write code to make a streamlit file. The streamlit webpage should have:
+
+A sidebar on the left titled datasets. There should be a list of the datasets there.
+There should be a plus button on the bottom. 
+
+The rest of the screen (other than the sidebar) should be broken up into 3 parts. 
+There should be a top section (boxed off) that covers the whole screen horizontally. 
+It should take up 1/3 of the height of the page. 
+I will refer to this section as Features box from now on.
+This section should show every column name of the dataset in the file other_dataset.csv. Under each column name it should contain an AI generated description of what type of data that column contains. For now leave this description blank. Just use the filler 'Description' for each column.
+
+The second and third boxes should be under this top box. They should each take up half of the total width. 
+I will refer to the right box as the Overture box. I will refer to the left box as Dataset box. 
+Each box should be scrollable and contain the first 50 rows of data. The Overtrue box will contain data from overture_data.csv.
+The Dataset box should contain the first 50 rows of data from other_dataset.csv. 
+
+Version 2: (get the overture data to be from the same location)
+Instead of using overture_data.csv, I want you to use the script from get_overture_data.py. 
+For the bbox variable in this file, it is essentially the longitude and latitude of the box of data that we are considering.
+TODO: find exact format of longitude and latitude of bbox.
+I want an AI to find the bbox of the other data. Then, send this bbox to the get_overture_data.py file.
+That way, the data from Overture will be in the same general locaiton as the data from the Other Dataset. 
+
+Version 3: (use compare code)
+
+
+Version 4: 
+For the sidebar, when the plus on the bottom is clicked, a pop up should appear that prompts the  user to upload a csv file and enter a name for that datasets. 
+This name should now show up in the sidebar, under the exisitng datasets.
+
+Version 5:
+For the sidebar, when a dataset is clicked, the page should refresh for that dataset. 
+Basically, thus far we have been using other_dataset.csv for the Features box and Dataset Box. 
+But now instead of always using other_dataset.csv we should use whichever csv file the user uploaded for the dataset they selected.
+
+I don't know how to do this? Would you save the csv file in the repo? Or just access it?
+
+Basically, the Overture box should stay the same, but the Features box (on top) should change to display information from the chosen dataset.
+Additionally, the Dataset box should change to display rows from the dataset. 
+
+
+Structure:
+app.py - streamlit code
+get_overture_data.py
+    - input: bbox (lat and long box)
+    - what it does: get the overture data in that bbox. 
+    - output: overture data in that bbox 
+    - Question: which format should this data be in to make it easily compatible with otherdataset and easily accessible by app.py.
+                options are csv file, pandas df, geopandas gdf. should this be stored in a file? 
+
+analyze_dataset.py:
+    - input: dataset csv 
+    - what it does: uses AI/LLM to analyze which col is the business name, lat/long col, and address col. Only uses dataset if it has these 3 cols. Also uses AI/LLM to create a short description for each col. 
+    - output: col descriptions, names of cols with business name, lat/long col, and address col
+    - Question: should the input be the downloaded csv file or should the input be just the link (that when you put into the browser it makes you download the csv file) 
+
+compare.py
+    - input: overture data and other dataset. 
+    - what it does: compares the data from overture and other dataset. Saves all the differences in a file to be displayed on streamlit.  
+    - output: 
+    - Question: Input: How should it get overture data? 
+    - Question: Output: What format should the output be? I want it to display the mismatch rows from overture and other dataset seperately on the streamlit site. 
+
+General questions:
+    - On the streamlit website, I want to be able to upload different datasets so the dataset we are comparing will change as will the overture dataset since it will change by location of the dataset.
+    - since i want to use different datasets, i don't know how to strucute it? if i should save datasets each time, or have it such that when the website refeshes, the program runs again.
+
+TODO:
+* TODO: find exact format of longitude and latitude of bbox.
