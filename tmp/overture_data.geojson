@@ -9,3 +9,9 @@
 { "type": "Feature", "properties": { "id": "08f75198c15091a40340132487206ea6", "bbox": { "xmin": -3.9804060459136963, "xmax": -3.980405569076538, "ymin": 5.402974605560303, "ymax": 5.402975559234619 }, "type": "place", "version": 0, "sources": [ { "property": "", "dataset": "meta", "record_id": "112485745195778", "update_time": "2025-02-24T08:00:00.000Z", "confidence": 0.910880262438491 } ], "names": "{'primary': 'Café Blanc', 'common': None, 'rules': None}", "categories": "{'primary': 'restaurant', 'alternate': array(['diner'], dtype=object)}", "confidence": 0.91088026243849096, "websites": null, "socials": [ "https://www.facebook.com/112485745195778" ], "emails": null, "phones": [ "+2250709756666" ], "brand": null, "addresses": "[{'freeform': 'L 160', 'locality': None, 'postcode': '28', 'region': None, 'country': 'CI'}]" }, "geometry": { "type": "Point", "coordinates": [ -3.980406, 5.4029747 ] } }
 ]
 }
+
+geodata:
+-3.4736272
+
+bbox
+"xmin": 3.4736275672912598, "xmax": 3.4736270904541016,

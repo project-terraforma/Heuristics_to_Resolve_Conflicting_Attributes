@@ -51,21 +51,17 @@ app.py - streamlit code
 get_overture_data.py
     - input: bbox (lat and long box)
     - what it does: get the overture data in that bbox. 
-    - output: overture data in that bbox 
-    - Question: which format should this data be in to make it easily compatible with otherdataset and easily accessible by app.py.
-                options are csv file, pandas df, geopandas gdf. should this be stored in a file? 
-
+    - output: save overture data in that bbox in format geopandas to /tmp/ folder
+    
 analyze_dataset.py:
-    - input: dataset csv 
+    - input: downloaded csv file
     - what it does: uses AI/LLM to analyze which col is the business name, lat/long col, and address col. Only uses dataset if it has these 3 cols. Also uses AI/LLM to create a short description for each col. 
-    - output: col descriptions, names of cols with business name, lat/long col, and address col
-    - Question: should the input be the downloaded csv file or should the input be just the link (that when you put into the browser it makes you download the csv file) 
+    - output: dictionary of col descriptions, names of cols with business name, lat/long col, and address col
 
 compare.py
     - input: overture data and other dataset. 
     - what it does: compares the data from overture and other dataset. Saves all the differences in a file to be displayed on streamlit.  
-    - output: 
-    - Question: Input: How should it get overture data? 
+    - output: dictionary {overture_discrepency_rows: [overture data], other_dataset_discrepency_rows: [otherdataset data],}
     - Question: Output: What format should the output be? I want it to display the mismatch rows from overture and other dataset seperately on the streamlit site. 
 
 General questions:
