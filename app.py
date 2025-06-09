@@ -25,7 +25,7 @@ with open(descriptions_path, "r") as f:
 # Initialize session state
 if "uploaded_datasets" not in st.session_state:
     st.session_state.uploaded_datasets = {
-        "nyc_restaurants.csv": "./tmp/sample_nyc/sample_nyc_edited.csv"
+        "sample_nyc": "./tmp/sample_nyc/sample_nyc_edited.csv"
     }
 
 # --- Sidebar ---
@@ -44,7 +44,8 @@ with st.sidebar.expander("➕ Add Dataset"):
             # Process and update session state
             from main import process_dataset
             process_dataset(uploaded_file, dataset_name)
-            st.session_state.uploaded_datasets.append(dataset_name + ".csv")
+            file_path = f"./tmp/{dataset_name}/{dataset_name}_edited.csv"  # Or however you generate the path
+            st.session_state.uploaded_datasets[dataset_name] = file_path
 
             # Trigger rerun so sidebar updates
             st.rerun()
