@@ -59,15 +59,20 @@ def rename_csv_file(file_path, name_col='dba', address_col=['building', 'street'
 
     df['unique_lon_lat'] = [{"x": x, "y": y} for x, y in zip(lon, lat)]
 
-    # Track min/max
-    lat_vals = lat.tolist()
-    lon_vals = lon.tolist()
+    # Filter out invalid lat/lon: non-numeric, NaN, or (0, 0)
+    valid_mask = (~lat.isna()) & (~lon.isna()) & ~((lat == 0) & (lon == 0))
+    lat_valid = lat[valid_mask]
+    lon_valid = lon[valid_mask]
 
+    df.loc[valid_mask, 'unique_lon_lat'] = [{"x": x, "y": y} for x, y in zip(lon_valid, lat_valid)]
+    df.loc[~valid_mask, 'unique_lon_lat'] = None  # Set invalid ones to None
+
+    # Calculate bounding box only for valid coordinates
     bounds = {
-        "xmin": min(lon_vals),
-        "xmax": max(lon_vals),
-        "ymin": min(lat_vals),
-        "ymax": max(lat_vals),
+        "xmin": lon_valid.min(),
+        "xmax": lon_valid.max(),
+        "ymin": lat_valid.min(),
+        "ymax": lat_valid.max(),
     }
 
     base, ext = os.path.splitext(file_path)
@@ -76,6 +81,36 @@ def rename_csv_file(file_path, name_col='dba', address_col=['building', 'street'
     return bounds
 
 if __name__ == "__main__":
+    descriptions = {
+   "camis": "Unique identifier for each restaurant/food establishment in the system",
+   "dba": "Doing Business As name; the operating name of the restaurant or food establishment",
+   "boro": "Borough where the establishment is located (Manhattan, Brooklyn, Queens, Bronx, Staten Island)",
+   "building": "Street number/building address",
+   "street": "Street name where the establishment is located",
+   "zipcode": "ZIP code of the establishment's location",
+   "phone": "Contact phone number for the establishment",
+   "cuisine_description": "Type of cuisine served (e.g., American, Chinese, Pizza, Thai)",
+   "inspection_date": "Date when the health inspection was conducted",
+   "action": "Result/action taken during inspection (e.g., 'Violations were cited', 'No violations recorded')",
+   "violation_code": "Specific code identifying the type of health violation found",
+   "violation_description": "Detailed description of the health violation",
+   "critical_flag": "Indicates whether the violation is considered 'Critical' or 'Not Critical'",
+   "score": "Numerical inspection score (higher scores indicate more violations)",
+   "grade": "Letter grade assigned based on inspection (A, B, C, etc.)",
+   "grade_date": "Date when the grade was assigned",
+   "record_date": "Date when this record was entered into the system",
+   "inspection_type": "Type of inspection conducted (e.g., 'Cycle Inspection', 'Pre-permit')",
+   "latitude": "Geographic latitude coordinate of the establishment",
+   "longitude": "Geographic longitude coordinate of the establishment",
+   "community_board": "NYC community board district number",
+   "council_district": "NYC council district number",
+   "census_tract": "Census tract identifier",
+   "bin": "Building Identification Number",
+   "bbl": "Borough, Block, and Lot identifier",
+   "nta": "Neighborhood Tabulation Area code",
+   "location_point1": "Additional location reference point"
+    }
+    
     bounds = rename_csv_file(file_path="./tmp/sample_nyc.csv")
 
     print(bounds)
