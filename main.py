@@ -23,7 +23,7 @@ from analyze_dataset import make_standard_cols
 def process_dataset(file_obj, dataset_name):
     print("called with ", dataset_name)
     df = pd.read_csv(file_obj)
-    bounds = make_standard_cols(df, dataset_name, num=2)
+    bounds = make_standard_cols(df, dataset_name)
     bbox = (bounds['xmin'], bounds['ymin'], bounds['xmax'], bounds['ymax'])
     get_overture_data(bbox, f"./tmp/{dataset_name}")
     return 
@@ -32,5 +32,5 @@ def process_dataset(file_obj, dataset_name):
 # if __name__ == "__main__":
 #     with open('./tmp/sbs_businesses.csv', 'rb') as f:
 #         uploaded_file_like = io.BytesIO(f.read())
-#         process_dataset(uploaded_file_like, dataset_name='nyc_restaurants')
+#         process_dataset(uploaded_file_like, dataset_name='nyc_restaurants_2')
     

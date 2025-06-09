@@ -22,13 +22,15 @@ def scan_tmp_for_datasets(tmp_dir="./tmp"):
             file_path = os.path.join(folder_path, f"{folder}_edited.csv")
             desc_path = os.path.join(folder_path, "descriptions.json")
             overture_path = os.path.join(folder_path, "overture_data.csv")
+            summary_path = os.path.join(folder_path, "summary.txt")
 
             # Check if all files exist
             if os.path.exists(file_path) and os.path.exists(desc_path) and os.path.exists(overture_path):
                 datasets[folder] = {
                     "file": file_path,
                     "description": desc_path,
-                    "overture": overture_path
+                    "overture": overture_path,
+                    "summary": summary_path
                 }
     return datasets
 
@@ -61,6 +63,7 @@ with st.sidebar.expander("➕ Add Dataset"):
             file_path = f"./tmp/{dataset_name}/{dataset_name}_edited.csv"
             desc_path = f"./tmp/{dataset_name}/descriptions.json"
             overture_path = f"./tmp/{dataset_name}/overture_data.csv"  # or whatever your naming scheme is
+            summary_path = f"./tmp/{dataset_name}/summary.txt"
 
             st.session_state.uploaded_datasets[dataset_name] = {
                 "file": file_path,
@@ -111,6 +114,15 @@ st.write("dataset_info['overture']", n)
 st.markdown(
     """
     <style>
+        .summary-box {
+            border: 1px solid #ccc;
+            padding: 15px;
+            margin-bottom: 20px;
+            height: 20vh;
+            overflow-y: auto;
+            border-radius: 8px;
+            background-color: #eef7ff;
+        }
         .features-box {
             border: 1px solid #ccc;
             padding: 10px;
@@ -139,6 +151,24 @@ st.markdown(
         }
     </style>
     """,
+    unsafe_allow_html=True
+)
+
+# -- Summary --
+# Example: Load summary from file or variable
+
+summary_text = ""
+if "summary" in dataset_info and os.path.exists(dataset_info["summary"]):
+    with open(dataset_info["summary"], "r") as f:
+        summary_text = f.read()
+else:
+    summary_text = "No summary available for this dataset."
+
+# Display summary
+st.markdown(
+    '<div class="summary-box"><strong>📊 Dataset Summary:</strong><br><br>{}</div>'.format(
+        summary_text.replace("\n", "<br>")
+    ),
     unsafe_allow_html=True
 )
 
