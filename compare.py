@@ -2,6 +2,12 @@ import pandas as pd
 import re
 import ast
 from rapidfuzz import fuzz
+import openai
+from dotenv import load_dotenv
+import os
+
+load_dotenv()
+OPEN_AI_KEY = os.getenv("OPENAI_API_KEY")
 
 def parse_address1(address):
     """Extract number and lowercase street name from a freeform address."""
@@ -11,6 +17,28 @@ def parse_address1(address):
         street = match.group(2).lower().strip()
         return number, street
     return None, None
+
+def llm_verify_name_match(overture_name, other_name):
+    """Ask LLM if two names refer to the same place."""
+    prompt = f"""
+        Are the following two business names likely referring to the same place?
+        1. "{overture_name}"
+        2. "{other_name}"
+        Reply only "Yes" or "No".
+        """
+
+    try:
+        response = openai.ChatCompletion.create(
+            model="gpt-3.5-turbo-0125",
+            messages=[{"role": "user", "content": prompt}],
+            temperature=0,
+            max_tokens=5
+        )
+        reply = response.choices[0].message['content'].strip().lower()
+        return "yes" in reply
+    except Exception as e:
+        print("LLM verification failed:", e)
+        return False
 
 def compare_n(overture_dataset_path, other_dataset_path):
     # Load datasets
@@ -64,6 +92,22 @@ def compare_n(overture_dataset_path, other_dataset_path):
                     if best_match is not None and best_score >= 80:
                         matched_names_overture.append(overture_name)
                         matched_names_other.append(best_match['unique_name'])
+                    elif best_match is not None and best_score >= 60:
+                        is_llm_match = llm_verify_name_match(overture_name, best_match['unique_name'])
+                        if is_llm_match:
+                            matched_names_overture.append(overture_name)
+                            matched_names_other.append(best_match['unique_name'])
+                        else:
+                            overture_discrepancy_rows.append({
+                                'address': freeform_address,
+                                'name': overture_name,
+                                'similarity': best_score
+                            })
+                            other_discrepancy_rows.append({
+                                'address': best_match['unique_address'],
+                                'name': best_match['unique_name'],
+                                'similarity': best_score
+                            })
                     elif best_match is not None:
                         overture_discrepancy_rows.append({
                             'address': freeform_address,
@@ -81,7 +125,7 @@ def compare_n(overture_dataset_path, other_dataset_path):
                             'address': freeform_address,
                             'name': overture_name,
                             'similarity': 0
-                        })
+                         })
                         other_discrepancy_rows.append({
                             'address': '(no match)',
                             'name': '(no match)',
@@ -89,20 +133,75 @@ def compare_n(overture_dataset_path, other_dataset_path):
                         })
 
 
-    print("\n✅ Matched Names:")
-    for o, r in zip(matched_names_overture, matched_names_other):
-        print(f" - Overture: {o}")
-        print(f" - Other:    {r}\n")
-
     return {
         'overture_discrepancy_rows': overture_discrepancy_rows,
         'other_dataset_discrepancy_rows': other_discrepancy_rows
     }
 
-# Example usage
+def recheck_other_discrepancies(overture_df, other_discrepancy_rows):
+    print("\n🔁 Rechecking discrepancies...")
+
+    # Build overture map
+    overture_address_map = {}
+    for _, row in overture_df.iterrows():
+        try:
+            address_list = ast.literal_eval(row['addresses'])
+            if isinstance(address_list, list) and len(address_list) > 0:
+                freeform = address_list[0]['freeform']
+                number, street = parse_address1(freeform)
+                if number and street:
+                    key = (number, street)
+                    overture_address_map.setdefault(key, []).append(row)
+        except:
+            continue
+
+    rechecked_matches = []
+
+    for row in other_discrepancy_rows:
+        other_address = row['address']
+        other_name = row['name']
+
+        number, street = parse_address1(other_address)
+        if number and street:
+            key = (number, street)
+            candidates = overture_address_map.get(key, [])
+            for overture_row in candidates:
+                try:
+                    name_dict = ast.literal_eval(overture_row['names']) if isinstance(overture_row['names'], str) else overture_row['names']
+                    overture_name = name_dict.get('primary', 'Unknown')
+
+                    if not isinstance(overture_name, str) or not isinstance(other_name, str):
+                        continue
+
+                    score = fuzz.token_sort_ratio(overture_name.lower(), other_name.lower())
+
+                    if score >= 80:
+                        rechecked_matches.append((other_name, overture_name, key, score, "fuzzy"))
+                        break
+                    elif score >= 60:
+                        if llm_verify_name_match(other_name, overture_name):
+                            rechecked_matches.append((other_name, overture_name, key, score, "llm"))
+                            break
+                except:
+                    continue
+
+    # print("\n✅ Matches found on recheck:")
+    # for other_name, overture_name, key, score, method in rechecked_matches:
+    #     print(f" - Address: {key}")
+    #     print(f" - Other:   {other_name}")
+    #     print(f" - Overture:{overture_name}")
+    #     print(f" - Score:   {score} ({method})\n")
+
+    return rechecked_matches
+
+
 if __name__ == "__main__":
     result = compare_n('./tmp/sample_nyc/overture_data.csv', './tmp/sample_nyc/sample_nyc_edited.csv')
 
-    # Optional: export discrepancies to a CSV for Streamlit
-    pd.DataFrame(result['overture_discrepancy_rows']).to_csv("overture_discrepancies.csv", index=False)
-    pd.DataFrame(result['other_dataset_discrepancy_rows']).to_csv("other_discrepancies.csv", index=False)
+    overture_df = pd.read_csv('./tmp/sample_nyc/overture_data.csv')
+    recheck_other_discrepancies(overture_df, result['other_dataset_discrepancy_rows'])
+
+    pd.DataFrame(result['overture_discrepancy_rows']).to_csv('discrepancies_from_overture.csv', index=False)
+    pd.DataFrame(result['other_dataset_discrepancy_rows']).to_csv('discrepancies_from_other.csv', index=False)
+
+
