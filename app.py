@@ -11,31 +11,41 @@ st.set_page_config(layout="wide")
 def load_csv(path):
     return pd.read_csv(path)
 
-# Paths
-dataset_path = "./tmp/sample_nyc/sample_nyc_edited.csv"
-descriptions_path = "./tmp/sample_nyc/descriptions.json"
-overture_path = "./tmp/sample_nyc/overture_data.csv"
+def scan_tmp_for_datasets(tmp_dir="./tmp"):
+    datasets = {}
+    if not os.path.exists(tmp_dir):
+        return datasets
+    
+    for folder in os.listdir(tmp_dir):
+        folder_path = os.path.join(tmp_dir, folder)
+        if os.path.isdir(folder_path):
+            file_path = os.path.join(folder_path, f"{folder}_edited.csv")
+            desc_path = os.path.join(folder_path, "descriptions.json")
+            overture_path = os.path.join(folder_path, "overture_data.csv")
 
-# Load core datasets
-df_dataset = load_csv(dataset_path)
-df_overture = load_csv(overture_path)
-# with open(descriptions_path, "r") as f:
-#     descriptions = json.load(f)
+            # Check if all files exist
+            if os.path.exists(file_path) and os.path.exists(desc_path) and os.path.exists(overture_path):
+                datasets[folder] = {
+                    "file": file_path,
+                    "description": desc_path,
+                    "overture": overture_path
+                }
+    return datasets
 
-# Initialize session state
+
+# Initialize or update session state datasets on app start
 if "uploaded_datasets" not in st.session_state:
-    st.session_state.uploaded_datasets = {
-    "sample_nyc": {
-        "file": "./tmp/sample_nyc/sample_nyc_edited.csv",
-        "description": "./tmp/sample_nyc/descriptions.json",
-        "overture": "./tmp/sample_nyc/overture_data.csv"
-    }
-    }
+    st.session_state.uploaded_datasets = scan_tmp_for_datasets()
+else:
+    # Optionally update to include any new folders discovered on rerun
+    current_datasets = scan_tmp_for_datasets()
+    for k, v in current_datasets.items():
+        if k not in st.session_state.uploaded_datasets:
+            st.session_state.uploaded_datasets[k] = v
 
 # --- Sidebar ---
 st.sidebar.title("Datasets")
 st.sidebar.markdown("**Available Datasets**")
-selected_dataset = st.sidebar.radio("Select a dataset", options=st.session_state.uploaded_datasets)
 
 # Upload Section
 st.sidebar.markdown("---")
@@ -50,7 +60,7 @@ with st.sidebar.expander("➕ Add Dataset"):
             process_dataset(uploaded_file, dataset_name)
             file_path = f"./tmp/{dataset_name}/{dataset_name}_edited.csv"
             desc_path = f"./tmp/{dataset_name}/descriptions.json"
-            overture_path = f"./tmp/{dataset_name}/overture.csv"  # or whatever your naming scheme is
+            overture_path = f"./tmp/{dataset_name}/overture_data.csv"  # or whatever your naming scheme is
 
             st.session_state.uploaded_datasets[dataset_name] = {
                 "file": file_path,
@@ -65,7 +75,17 @@ with st.sidebar.expander("➕ Add Dataset"):
 
 # --- Get the selected dataset files dynamically
 
-if selected_dataset in st.session_state.uploaded_datasets:
+# Sidebar dataset selector
+selected_dataset = st.sidebar.radio(
+    "Select a dataset",
+    options=list(st.session_state.uploaded_datasets.keys())
+)
+
+
+st.write("selected_dataset is", selected_dataset)
+
+#if selected_dataset in st.session_state.uploaded_datasets:
+if selected_dataset:
     dataset_info = st.session_state.uploaded_datasets[selected_dataset]
 
     try:
@@ -80,6 +100,11 @@ else:
     descriptions = {}
     df_dataset = pd.DataFrame()
     df_overture = pd.DataFrame()
+
+n = dataset_info["file"]
+st.write("dataset_info['file']", n)
+n = dataset_info["overture"]
+st.write("dataset_info['overture']", n)
 
 # --- Main Page Layout ---
 
@@ -128,11 +153,8 @@ if not df_dataset.empty:
 else:
     st.info("No dataset loaded yet. Please upload or select a dataset.")
 
-
-desc_row = [descriptions.get(col, "Description") for col in df_dataset.columns]
-features_data = pd.DataFrame([desc_row], columns=df_dataset.columns, index=["Description"])
-st.dataframe(features_data, use_container_width=True, height=150)
 st.markdown('</div>', unsafe_allow_html=True)
+
 
 # --- Bottom Boxes (split view) ---
 col1, col2 = st.columns(2)

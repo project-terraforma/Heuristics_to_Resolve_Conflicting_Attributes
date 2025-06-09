@@ -3,7 +3,6 @@ ChatGPT Prompt to create the Streamlit Site:
 Ask about the overall format:
 I need some advcie about how to strucutre my project. 
 
-
 Version 1: (get initial UI working)
 Can you write code to make a streamlit file. The streamlit webpage should have:
 
@@ -35,15 +34,56 @@ That way, the data from Overture will be in the same general locaiton as the dat
 
 Version 3: (use compare code)
 
-
 Version 4: 
 For the sidebar, when the plus on the bottom is clicked, a pop up should appear that prompts the  user to upload a csv file and enter a name for that datasets. 
 This name should now show up in the sidebar, under the exisitng datasets.
 
 Version 5:
+Manual main.py integreation:
+* download a dataset
+* manually set col names and descriptions
+* make page refresh with new data
+
 For the sidebar, when a dataset is clicked, the page should refresh for that dataset. 
 Basically, thus far we have been using other_dataset.csv for the Features box and Dataset Box. 
 But now instead of always using other_dataset.csv we should use whichever csv file the user uploaded for the dataset they selected.
+
+* make descriptions and overture data change too 
+* make it automatically read all data from tmp
+
+Version 6:
+Make app.py use compare.py when showing datasets at bottom. 
+* compare.py should create new files and display those
+
+Version 6:
+Use Ryan's version of analyze_dataset that uses llm to generate description and identify col names.
+
+Version 7:
+Test compare.py. Save the diff file.
+
+Version 8:
+* show a loading screen while dataset is being analyzed and while overture data is being pulled
+* Solve small bugs
+    * make sure user uploads a .csv file, or else show error message
+    * in analyze_dataset, if the dataset does not have name, address, and lat/lon 
+        * let them upload it but show an error message on the screen instead of showing any datasets
+        * basically instead of saving an edited version of the file in tmp/name/, store a .txt file,
+          show the features in the top box and display error message. Do not show data in bottom 2 boxes
+        * address should have at least number and street name
+    * make a limit to how large the bbox can be
+    * make more robust/general way to find name, address, lat/lon cols
+        * if this info is all in one col for example
+    * make more robust/general way to compare addresses
+        * st vs street, ave vs avenue
+        * any else? 
+
+    * Don't implement: in analyze_dataset when making bounds, don't include any lat/lon points that differ a lot from average?
+
+
+
+Limitations:
+* limit to bbox size (scope of dataset)
+* dataset has lat/lon, address (at least number and street name), and name
 
 I don't know how to do this? Would you save the csv file in the repo? Or just access it?
 
