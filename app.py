@@ -2,13 +2,14 @@ import streamlit as st
 import pandas as pd
 import json
 import os
+import sys
+
+st.set_page_config(layout="wide")
 
 # Load data
 @st.cache_data
 def load_csv(path):
     return pd.read_csv(path)
-
-st.set_page_config(layout="wide")
 
 # Paths
 dataset_path = "./tmp/sample_nyc/sample_nyc_edited.csv"
@@ -21,46 +22,34 @@ df_overture = load_csv(overture_path)
 with open(descriptions_path, "r") as f:
     descriptions = json.load(f)
 
+# Initialize session state
+if "uploaded_datasets" not in st.session_state:
+    st.session_state.uploaded_datasets = {
+        "nyc_restaurants.csv": "./tmp/sample_nyc/sample_nyc_edited.csv"
+    }
+
 # --- Sidebar ---
 st.sidebar.title("Datasets")
+st.sidebar.markdown("**Available Datasets**")
+selected_dataset = st.sidebar.radio("Select a dataset", options=st.session_state.uploaded_datasets)
 
-# Store uploaded datasets and form state in session
-if "uploaded_datasets" not in st.session_state:
-    st.session_state.uploaded_datasets = {}
-if "show_upload_form" not in st.session_state:
-    st.session_state.show_upload_form = False
+# Upload Section
+st.sidebar.markdown("---")
+with st.sidebar.expander("➕ Add Dataset"):
+    uploaded_file = st.file_uploader("Upload a CSV", type=["csv"], key="uploader")
+    dataset_name = st.text_input("Enter a name for the dataset", key="name_input")
 
-# Show available datasets
-available_datasets = ["nyc_restaurants.csv"] + list(st.session_state.uploaded_datasets.keys())
-selected_dataset = st.sidebar.radio("Select a dataset", options=available_datasets)
-
-# Show/hide upload popup
-if st.sidebar.button("➕ Add Dataset"):
-    st.session_state.show_upload_form = True
-
-if st.session_state.show_upload_form:
-    with st.sidebar.expander("Upload New Dataset", expanded=True):
-        uploaded_file = st.file_uploader("Upload CSV", type="csv", key="file")
-        dataset_name = st.text_input("Dataset Name", key="name")
-
+    if st.button("✅ Done", key="done_button"):
         if uploaded_file and dataset_name:
-            # save_path = f"./tmp/uploads/{dataset_name}.csv"
-            # os.makedirs(os.path.dirname(save_path), exist_ok=True)
-            # with open(save_path, "wb") as f:
-            #     f.write(uploaded_file.getbuffer())
-
-            # Save the dataset reference
-            # st.session_state.uploaded_datasets[dataset_name] = save_path
-
+            # Process and update session state
             from main import process_dataset
-            process_dataset(file_path, dataset_name)
+            process_dataset(uploaded_file, dataset_name)
+            st.session_state.uploaded_datasets.append(dataset_name + ".csv")
 
-        # ✅ Call rerun only on click
-        if st.button("Done"):
-            st.session_state.show_upload_form = False
+            # Trigger rerun so sidebar updates
             st.rerun()
-
-
+        else:
+            st.warning("Please upload a file and enter a name.")
 
 
 # --- Main Page Layout ---
@@ -128,3 +117,4 @@ with col2:
         st.dataframe(df_dataset.head(50), use_container_width=True, height=500)
 
     st.markdown('</div>', unsafe_allow_html=True)
+

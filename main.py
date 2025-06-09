@@ -29,8 +29,8 @@ def process_dataset(file_obj, dataset_name):
     return 
 
 
-if __name__ == "__main__":
-    with open('./tmp/nyc_restaurants.csv', 'rb') as f:
-        uploaded_file_like = io.BytesIO(f.read())
-        process_dataset(uploaded_file_like, dataset_name='nyc_restaurants')
+# if __name__ == "__main__":
+#     with open('./tmp/nyc_restaurants.csv', 'rb') as f:
+#         uploaded_file_like = io.BytesIO(f.read())
+#         process_dataset(uploaded_file_like, dataset_name='nyc_restaurants')
     

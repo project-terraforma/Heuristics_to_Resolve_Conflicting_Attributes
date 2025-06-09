@@ -8,6 +8,7 @@
 import os
 import pandas as pd
 import overturemaps
+import geopandas as gpd
 
 def get_overture_data(bbox, file_path):
     """
