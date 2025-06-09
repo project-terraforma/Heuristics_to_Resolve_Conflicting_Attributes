@@ -1,17 +1,22 @@
 import streamlit as st
 import pandas as pd
+import json
 
 # Load data
 @st.cache_data
 def load_csv(path):
     return pd.read_csv(path)
 
+st.set_page_config(layout="wide")
+
 dataset_path = "./tmp/sample_nyc/sample_nyc_edited.csv"
-descriptions = "./tmp/sample_nyc/descriptions.json"
-overture_path = "./tmp/overture_data_1.csv"
+descriptions_path = "./tmp/sample_nyc/descriptions.json"
+overture_path = "./tmp/sample_nyc/overture_data.csv"
 
 df_dataset = load_csv(dataset_path)
 df_overture = load_csv(overture_path)
+with open(descriptions_path, "r") as f:
+    descriptions = json.load(f)
 
 # --- Sidebar ---
 st.sidebar.title("Datasets")
@@ -63,10 +68,11 @@ st.markdown(
 # --- Features Box ---
 st.markdown("### Features Box")
 
-# Create a new DataFrame with column names and descriptions
-features_data = pd.DataFrame([['Description'] * len(df_dataset.columns)],
-                             columns=df_dataset.columns,
-                             index=["Description"])
+# Create a list of descriptions for each column, defaulting to "Description" if not found
+desc_row = [descriptions.get(col, "Description") for col in df_dataset.columns]
+
+# Create the features_data DataFrame
+features_data = pd.DataFrame([desc_row], columns=df_dataset.columns, index=["Description"])
 
 # Wrap it in a styled box
 # st.markdown('<div class="features-box">', unsafe_allow_html=True)
