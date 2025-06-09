@@ -19,13 +19,17 @@ overture_path = "./tmp/sample_nyc/overture_data.csv"
 # Load core datasets
 df_dataset = load_csv(dataset_path)
 df_overture = load_csv(overture_path)
-with open(descriptions_path, "r") as f:
-    descriptions = json.load(f)
+# with open(descriptions_path, "r") as f:
+#     descriptions = json.load(f)
 
 # Initialize session state
 if "uploaded_datasets" not in st.session_state:
     st.session_state.uploaded_datasets = {
-        "sample_nyc": "./tmp/sample_nyc/sample_nyc_edited.csv"
+    "sample_nyc": {
+        "file": "./tmp/sample_nyc/sample_nyc_edited.csv",
+        "description": "./tmp/sample_nyc/descriptions.json",
+        "overture": "./tmp/sample_nyc/overture_data.csv"
+    }
     }
 
 # --- Sidebar ---
@@ -44,14 +48,38 @@ with st.sidebar.expander("➕ Add Dataset"):
             # Process and update session state
             from main import process_dataset
             process_dataset(uploaded_file, dataset_name)
-            file_path = f"./tmp/{dataset_name}/{dataset_name}_edited.csv"  # Or however you generate the path
-            st.session_state.uploaded_datasets[dataset_name] = file_path
+            file_path = f"./tmp/{dataset_name}/{dataset_name}_edited.csv"
+            desc_path = f"./tmp/{dataset_name}/descriptions.json"
+            overture_path = f"./tmp/{dataset_name}/overture.csv"  # or whatever your naming scheme is
+
+            st.session_state.uploaded_datasets[dataset_name] = {
+                "file": file_path,
+                "description": desc_path,
+                "overture": overture_path
+            }
 
             # Trigger rerun so sidebar updates
             st.rerun()
         else:
             st.warning("Please upload a file and enter a name.")
 
+# --- Get the selected dataset files dynamically
+
+if selected_dataset in st.session_state.uploaded_datasets:
+    dataset_info = st.session_state.uploaded_datasets[selected_dataset]
+
+    try:
+        with open(dataset_info["description"], "r") as f:
+            descriptions = json.load(f)
+    except FileNotFoundError:
+        descriptions = {}
+
+    df_dataset = load_csv(dataset_info["file"])
+    df_overture = load_csv(dataset_info["overture"])
+else:
+    descriptions = {}
+    df_dataset = pd.DataFrame()
+    df_overture = pd.DataFrame()
 
 # --- Main Page Layout ---
 
@@ -90,9 +118,17 @@ st.markdown(
 )
 
 # --- Features Box ---
+
 st.markdown("### Features Box")
 
-# Description row
+if not df_dataset.empty:
+    desc_row = [descriptions.get(col, "No description available.") for col in df_dataset.columns]
+    features_data = pd.DataFrame([desc_row], columns=df_dataset.columns, index=["Description"])
+    st.dataframe(features_data, use_container_width=True, height=150)
+else:
+    st.info("No dataset loaded yet. Please upload or select a dataset.")
+
+
 desc_row = [descriptions.get(col, "Description") for col in df_dataset.columns]
 features_data = pd.DataFrame([desc_row], columns=df_dataset.columns, index=["Description"])
 st.dataframe(features_data, use_container_width=True, height=150)
@@ -103,19 +139,16 @@ col1, col2 = st.columns(2)
 
 with col1:
     st.markdown("### Overture Box")
-    st.dataframe(df_overture.head(50), use_container_width=True, height=500)
-    st.markdown('</div>', unsafe_allow_html=True)
+    if not df_overture.empty:
+        st.dataframe(df_overture.head(50), use_container_width=True, height=500)
+    else:
+        st.info("No overture data available.")
 
 with col2:
     st.markdown("### Dataset Box")
-
-    # Load selected dataset (if dynamic)
-    if selected_dataset in st.session_state.uploaded_datasets:
-        dynamic_path = st.session_state.uploaded_datasets[selected_dataset]
-        df_dynamic = load_csv(dynamic_path)
-        st.dataframe(df_dynamic.head(50), use_container_width=True, height=500)
-    else:
+    if not df_dataset.empty:
         st.dataframe(df_dataset.head(50), use_container_width=True, height=500)
+    else:
+        st.info("No dataset loaded yet.")
 
-    st.markdown('</div>', unsafe_allow_html=True)
 
