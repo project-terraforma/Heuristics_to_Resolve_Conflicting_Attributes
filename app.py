@@ -6,7 +6,8 @@ import pandas as pd
 def load_csv(path):
     return pd.read_csv(path)
 
-dataset_path = "./tmp/nyc_restaurants.csv"
+dataset_path = "./tmp/sample_nyc/sample_nyc_edited.csv"
+descriptions = "./tmp/sample_nyc/descriptions.json"
 overture_path = "./tmp/overture_data_1.csv"
 
 df_dataset = load_csv(dataset_path)

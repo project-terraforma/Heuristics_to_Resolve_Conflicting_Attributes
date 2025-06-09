@@ -9,7 +9,7 @@ import os
 import pandas as pd
 import overturemaps
 
-def get_overture_data(bbox):
+def get_overture_data(bbox, file_path):
     """
     Fetch data within the specified bounding box using overture,
     convert to pandas DataFrame, and save as tmp/overture_data.csv.
@@ -32,15 +32,15 @@ def get_overture_data(bbox):
     print("checked that folder exists\n")
 
     # Save DataFrame to CSV, overwriting existing file
-    csv_path = "tmp/overture_data_1.csv"
+    csv_path = f"{file_path}/overture_data.csv"
     df.to_csv(csv_path, index=False)
     print("saved data to file\n")
 
     print(f"Overture data saved to {csv_path}")
 
-if __name__ == "__main__":
-    # Example bbox (replace with your bbox input)
-    bbox = (-4.0033, 0, -2.6033, 40.5167)
-    print("calling function\n")
-    get_overture_data(bbox)
+# if __name__ == "__main__":
+#     # Example bbox (replace with your bbox input)
+#     bbox = (-4.0033, 0, -2.6033, 40.5167)
+#     print("calling function\n")
+#     get_overture_data(bbox)
 

@@ -8,6 +8,7 @@
 import pandas as pd
 import os
 import json
+from get_overture_data import get_overture_data
 
 ## TO DO
 
@@ -123,11 +124,22 @@ def rename_csv_file(file_path, name_col='dba', address_col=['building', 'street'
     with open(f"./tmp/{base}/descriptions.json", "w") as f:
         json.dump(descriptions, f, indent=2)
 
-    return bounds
+    return bounds, f"./tmp/{base}"
 
 if __name__ == "__main__":
 
-    bounds = rename_csv_file(file_path="./tmp/sample_nyc.csv")
+    bounds, folder_name = rename_csv_file(file_path="./tmp/sample_nyc.csv")
+
+    #Call get_overture_data for given bbox
+    bbox = (bounds['xmin'], bounds['ymin'], bounds['xmax'], bounds['ymax'])
+
+    # bbox format should be (west, south, east, north)
+    # translates to         (lon_min, lat_min, lon_max, lat_max)
+    # translates to         (xmin, ymin, xmax, ymax)
+    get_overture_data(bbox, folder_name)
+
+
+    # add call get_overture_data.py
     #print(bounds)
 
 
