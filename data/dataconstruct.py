@@ -2,7 +2,7 @@
 
 import pandas as pd
 from fuzzywuzzy import fuzz
-
+from tqdm import tqdm
 
 # Load the datasets
 datasets = {
@@ -37,27 +37,77 @@ def normalize_address(building, street, zip_code):
     parts = [str(building).strip(), str(street).strip(), str(zip_code).strip()]
     return ''.join(filter(None, parts)).lower()
 
-# Load datasets
 load_datasets()
-# Extract datasets
 sbs_businesses = datasets["sbs_businesses"]
 nyc_pois = datasets["nyc_pois"]
 nyc_restaurants = datasets["nyc_restaurants"]
 
-# Normalize SBS Data
+# Normalize Data
 sbs_businesses['normalized_name'] = sbs_businesses['vendor_dba'].fillna(sbs_businesses['vendor_formal_name']).apply(normalize_name)
 sbs_businesses['normalized_address'] = sbs_businesses.apply(
-    lambda row: normalize_address(row['address1'], '', row['zip']), axis=1)
-
-# Normalize Restaurant Data 
+    lambda row: normalize_address(row['address1'], '', row['zip']), axis=1) 
 nyc_restaurants['normalized_name'] = nyc_restaurants['dba'].apply(normalize_name)
 nyc_restaurants['normalized_address'] = nyc_restaurants.apply(
     lambda row: normalize_address(row['building'], row['street'], row['zipcode']), axis=1)
-
-# Normalize POI Data 
 nyc_pois['normalized_name'] = nyc_pois['FEATURE NAME'].apply(normalize_name)
 
-# Check if data has been loaded correctly
-print("SBS Sample:", sbs_businesses[['normalized_name', 'normalized_address']].head(3))
-print("Restaurant Sample:", nyc_restaurants[['normalized_name', 'normalized_address']].head(3))
-print("POI Sample:", nyc_pois[['normalized_name']].head(3))
+sbs_index = sbs_businesses.groupby('normalized_address')
+tqdm.pandas()
+
+def match_restaurant_to_sbs(row):
+    addr = row['normalized_address']
+    name = row['normalized_name']
+    
+    if addr in sbs_index.groups:
+        candidates = sbs_index.get_group(addr)
+        best_match = None
+        best_score = 0
+        
+        for _, sbs_row in candidates.iterrows():
+            score = fuzz.token_set_ratio(name, sbs_row['normalized_name'])
+            if score > best_score:
+                best_score = score
+                best_match = sbs_row
+        
+        if best_score >= 85:
+            return pd.Series({
+                "sbs_name": best_match['normalized_name'],
+                "sbs_address": best_match['normalized_address'],
+                "match_score": best_score,
+                "sbs_index": best_match.name
+            })
+    
+    return pd.Series({"sbs_name": None, "sbs_address": None, "match_score": 0, "sbs_index": None})
+
+# Apply matching
+matched_df = nyc_restaurants.copy()
+matched_df[['sbs_name', 'sbs_address', 'match_score', 'sbs_index']] = matched_df.progress_apply(match_restaurant_to_sbs, axis=1)
+
+# Filter to confident matches
+final_matches = matched_df[matched_df['match_score'] >= 85]
+
+poi_names = nyc_pois['normalized_name'].dropna().unique().tolist()
+
+def best_poi_match(name):
+    try:
+        if not isinstance(name, str) or not name.strip():
+            return pd.Series([None, 0], index=["poi_name", "poi_score"])
+
+        best_score = 0
+        best_name = None
+        for poi in poi_names:
+            score = fuzz.token_set_ratio(name, poi)
+            if score > best_score:
+                best_score = score
+                best_name = poi
+
+        return pd.Series([best_name, best_score], index=["poi_name", "poi_score"])
+    except Exception as e:
+        print(f"Error matching POI for name: {name}, Error: {e}")
+        return pd.Series([None, 0], index=["poi_name", "poi_score"])
+
+
+
+final_matches[['poi_name', 'poi_score']] = final_matches['normalized_name'].progress_apply(best_poi_match)
+final_matches.to_csv("merged_confident_matches.csv", index=False)
+
