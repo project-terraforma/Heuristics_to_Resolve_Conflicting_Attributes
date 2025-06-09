@@ -9,15 +9,6 @@ import os
 load_dotenv()
 OPEN_AI_KEY = os.getenv("OPENAI_API_KEY")
 
-def parse_address1(address):
-    """Extract number and lowercase street name from a freeform address."""
-    match = re.match(r"^(\d+)\s+([a-zA-Z\s]+)", address)
-    if match:
-        number = match.group(1)
-        street = match.group(2).lower().strip()
-        return number, street
-    return None, None
-
 def llm_verify_name_match(overture_name, other_name):
     """Ask LLM if two names refer to the same place."""
     prompt = f"""
@@ -39,6 +30,15 @@ def llm_verify_name_match(overture_name, other_name):
     except Exception as e:
         print("LLM verification failed:", e)
         return False
+    
+def parse_address1(address):
+    """Extract number and lowercase street name from a freeform address."""
+    match = re.match(r"^(\d+)\s+([a-zA-Z\s]+)", address)
+    if match:
+        number = match.group(1)
+        street = match.group(2).lower().strip()
+        return number, street
+    return None, None
 
 def compare_n(overture_dataset_path, other_dataset_path):
     # Load datasets
@@ -203,5 +203,4 @@ if __name__ == "__main__":
 
     pd.DataFrame(result['overture_discrepancy_rows']).to_csv('discrepancies_from_overture.csv', index=False)
     pd.DataFrame(result['other_dataset_discrepancy_rows']).to_csv('discrepancies_from_other.csv', index=False)
-
 
