@@ -21,6 +21,11 @@ I will refer to the right box as the Overture box. I will refer to the left box 
 Each box should be scrollable and contain the first 50 rows of data. The Overtrue box will contain data from overture_data.csv.
 The Dataset box should contain the first 50 rows of data from other_dataset.csv. 
 
+Data: 
+the data is in the same directory as app.py. 
+Overture data: /tmp/overture_data.csv
+Otherdataset: /tmp/nyc_restaurants.csv
+
 Version 2: (get the overture data to be from the same location)
 Instead of using overture_data.csv, I want you to use the script from get_overture_data.py. 
 For the bbox variable in this file, it is essentially the longitude and latitude of the box of data that we are considering.
@@ -54,15 +59,18 @@ get_overture_data.py
     - output: save overture data in that bbox in format geopandas to /tmp/ folder
     
 analyze_dataset.py:
-    - input: downloaded csv file
-    - what it does: uses AI/LLM to analyze which col is the business name, lat/long col, and address col. Only uses dataset if it has these 3 cols. Also uses AI/LLM to create a short description for each col. 
+    - input: path to downloaded csv file
+    - what it does: uses AI/LLM to analyze which col is the business name, lat/long col, and address col. Only uses dataset if it has these 3 cols. Also uses AI/LLM to create a short description for each col.
+                    standardizes other_datasets by 
     - output: dictionary of col descriptions, names of cols with business name, lat/long col, and address col
 
 compare.py
     - input: overture data and other dataset. 
     - what it does: compares the data from overture and other dataset. Saves all the differences in a file to be displayed on streamlit.  
     - output: dictionary {overture_discrepency_rows: [overture data], other_dataset_discrepency_rows: [otherdataset data],}
-    - Question: Output: What format should the output be? I want it to display the mismatch rows from overture and other dataset seperately on the streamlit site. 
+
+General functionality: 
+    - on streamlit website, when you add a dataset it will download it as a csv and save it in /tmp/ folder. 
 
 General questions:
     - On the streamlit website, I want to be able to upload different datasets so the dataset we are comparing will change as will the overture dataset since it will change by location of the dataset.
@@ -70,3 +78,10 @@ General questions:
 
 TODO:
 * TODO: find exact format of longitude and latitude of bbox.
+
+Choices:
+- instead of exporting overture data as a geopandas data frame (gdf), we are going to forgo the geometry feature and export it as a pandas dataframe
+- the geometry features contains the exact long and lat.
+- instead we are going to use the bbox (which contains minlon, maxlon, minlat, maxlat) 
+
+- thus in compare we will check if a location is inside this bbox. 
