@@ -22,7 +22,7 @@ from get_overture_data import get_overture_data
 # address_col will either be one col or a few. 
 # If it is a few the cols will be in order of a proper address: 
 
-def generate_descriptions(file_path):
+def generate_descriptions(df):
     descriptions = {
    "camis": "Unique identifier for each restaurant/food establishment in the system",
    "dba": "Doing Business As name; the operating name of the restaurant or food establishment",
@@ -55,8 +55,8 @@ def generate_descriptions(file_path):
 
     return descriptions
 
-def rename_csv_file(file_path, name_col='dba', address_col=['building', 'street', 'zipcode'], lat_lon=['latitude', 'longitude']):
-    df = pd.read_csv(file_path)
+def make_standard_cols(df, dataset_name, name_col='dba', address_col=['building', 'street', 'zipcode'], lat_lon=['latitude', 'longitude']):
+    #df = pd.read_csv(file_path)
 
     # Rename name_col to unique_name
     df['unique_name'] = df[name_col]
@@ -110,33 +110,30 @@ def rename_csv_file(file_path, name_col='dba', address_col=['building', 'street'
         "ymax": lat_valid.max(),
     }
     
+    edited_path = f"{dataset_name}_edited.csv" 
 
-    base_name = os.path.basename(file_path)             # Gets 'myfile.csv' from 'some/path/myfile.csv'
-    base, ext = os.path.splitext(base_name)             # Splits into 'myfile' and '.csv'
-    edited_path = f"{base}_edited{ext}" 
-
-    os.makedirs(f"./tmp/{base}/", exist_ok=True)
-    df.to_csv(f"./tmp/{base}/{edited_path}", index=False)
-    with open(f"./tmp/{base}/bounds.json", "w") as f:
+    os.makedirs(f"./tmp/{dataset_name}/", exist_ok=True)
+    df.to_csv(f"./tmp/{dataset_name}/{edited_path}", index=False)
+    with open(f"./tmp/{dataset_name}/bounds.json", "w") as f:
         json.dump(bounds, f, indent=2)
 
-    descriptions = generate_descriptions(file_path=file_path)
-    with open(f"./tmp/{base}/descriptions.json", "w") as f:
+    descriptions = generate_descriptions(df=df)
+    with open(f"./tmp/{dataset_name}/descriptions.json", "w") as f:
         json.dump(descriptions, f, indent=2)
 
-    return bounds, f"./tmp/{base}"
+    return bounds
 
-if __name__ == "__main__":
+# if __name__ == "__main__":
 
-    bounds, folder_name = rename_csv_file(file_path="./tmp/sample_nyc.csv")
+#     bounds, folder_name = make_standard_cols(file_path="./tmp/sample_nyc.csv")
 
-    #Call get_overture_data for given bbox
-    bbox = (bounds['xmin'], bounds['ymin'], bounds['xmax'], bounds['ymax'])
+#     #Call get_overture_data for given bbox
+#     bbox = (bounds['xmin'], bounds['ymin'], bounds['xmax'], bounds['ymax'])
 
-    # bbox format should be (west, south, east, north)
-    # translates to         (lon_min, lat_min, lon_max, lat_max)
-    # translates to         (xmin, ymin, xmax, ymax)
-    get_overture_data(bbox, folder_name)
+#     # bbox format should be (west, south, east, north)
+#     # translates to         (lon_min, lat_min, lon_max, lat_max)
+#     # translates to         (xmin, ymin, xmax, ymax)
+#     get_overture_data(bbox, folder_name)
 
 
     # add call get_overture_data.py

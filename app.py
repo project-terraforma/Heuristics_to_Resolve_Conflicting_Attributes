@@ -44,16 +44,16 @@ if st.session_state.show_upload_form:
         dataset_name = st.text_input("Dataset Name", key="name")
 
         if uploaded_file and dataset_name:
-            save_path = f"./tmp/uploads/{dataset_name}.csv"
-            os.makedirs(os.path.dirname(save_path), exist_ok=True)
-            with open(save_path, "wb") as f:
-                f.write(uploaded_file.getbuffer())
+            # save_path = f"./tmp/uploads/{dataset_name}.csv"
+            # os.makedirs(os.path.dirname(save_path), exist_ok=True)
+            # with open(save_path, "wb") as f:
+            #     f.write(uploaded_file.getbuffer())
 
             # Save the dataset reference
-            st.session_state.uploaded_datasets[dataset_name] = save_path
+            # st.session_state.uploaded_datasets[dataset_name] = save_path
 
             from main import process_dataset
-            process_dataset(save_path, dataset_name)
+            process_dataset(file_path, dataset_name)
 
         # ✅ Call rerun only on click
         if st.button("Done"):
