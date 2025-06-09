@@ -7,6 +7,7 @@
 # with the 
 import pandas as pd
 import os
+import json
 
 ## TO DO
 
@@ -19,6 +20,39 @@ import os
 
 # address_col will either be one col or a few. 
 # If it is a few the cols will be in order of a proper address: 
+
+def generate_descriptions(file_path):
+    descriptions = {
+   "camis": "Unique identifier for each restaurant/food establishment in the system",
+   "dba": "Doing Business As name; the operating name of the restaurant or food establishment",
+   "boro": "Borough where the establishment is located (Manhattan, Brooklyn, Queens, Bronx, Staten Island)",
+   "building": "Street number/building address",
+   "street": "Street name where the establishment is located",
+   "zipcode": "ZIP code of the establishment's location",
+   "phone": "Contact phone number for the establishment",
+   "cuisine_description": "Type of cuisine served (e.g., American, Chinese, Pizza, Thai)",
+   "inspection_date": "Date when the health inspection was conducted",
+   "action": "Result/action taken during inspection (e.g., 'Violations were cited', 'No violations recorded')",
+   "violation_code": "Specific code identifying the type of health violation found",
+   "violation_description": "Detailed description of the health violation",
+   "critical_flag": "Indicates whether the violation is considered 'Critical' or 'Not Critical'",
+   "score": "Numerical inspection score (higher scores indicate more violations)",
+   "grade": "Letter grade assigned based on inspection (A, B, C, etc.)",
+   "grade_date": "Date when the grade was assigned",
+   "record_date": "Date when this record was entered into the system",
+   "inspection_type": "Type of inspection conducted (e.g., 'Cycle Inspection', 'Pre-permit')",
+   "latitude": "Geographic latitude coordinate of the establishment",
+   "longitude": "Geographic longitude coordinate of the establishment",
+   "community_board": "NYC community board district number",
+   "council_district": "NYC council district number",
+   "census_tract": "Census tract identifier",
+   "bin": "Building Identification Number",
+   "bbl": "Borough, Block, and Lot identifier",
+   "nta": "Neighborhood Tabulation Area code",
+   "location_point1": "Additional location reference point"
+    }
+
+    return descriptions
 
 def rename_csv_file(file_path, name_col='dba', address_col=['building', 'street', 'zipcode'], lat_lon=['latitude', 'longitude']):
     df = pd.read_csv(file_path)
@@ -74,45 +108,26 @@ def rename_csv_file(file_path, name_col='dba', address_col=['building', 'street'
         "ymin": lat_valid.min(),
         "ymax": lat_valid.max(),
     }
+    
 
-    base, ext = os.path.splitext(file_path)
-    edited_path = f"{base}_edited{ext}"
-    df.to_csv(edited_path, index=False)
+    base_name = os.path.basename(file_path)             # Gets 'myfile.csv' from 'some/path/myfile.csv'
+    base, ext = os.path.splitext(base_name)             # Splits into 'myfile' and '.csv'
+    edited_path = f"{base}_edited{ext}" 
+
+    os.makedirs(f"./tmp/{base}/", exist_ok=True)
+    df.to_csv(f"./tmp/{base}/{edited_path}", index=False)
+    with open(f"./tmp/{base}/bounds.json", "w") as f:
+        json.dump(bounds, f, indent=2)
+
+    descriptions = generate_descriptions(file_path=file_path)
+    with open(f"./tmp/{base}/descriptions.json", "w") as f:
+        json.dump(descriptions, f, indent=2)
+
     return bounds
 
 if __name__ == "__main__":
-    descriptions = {
-   "camis": "Unique identifier for each restaurant/food establishment in the system",
-   "dba": "Doing Business As name; the operating name of the restaurant or food establishment",
-   "boro": "Borough where the establishment is located (Manhattan, Brooklyn, Queens, Bronx, Staten Island)",
-   "building": "Street number/building address",
-   "street": "Street name where the establishment is located",
-   "zipcode": "ZIP code of the establishment's location",
-   "phone": "Contact phone number for the establishment",
-   "cuisine_description": "Type of cuisine served (e.g., American, Chinese, Pizza, Thai)",
-   "inspection_date": "Date when the health inspection was conducted",
-   "action": "Result/action taken during inspection (e.g., 'Violations were cited', 'No violations recorded')",
-   "violation_code": "Specific code identifying the type of health violation found",
-   "violation_description": "Detailed description of the health violation",
-   "critical_flag": "Indicates whether the violation is considered 'Critical' or 'Not Critical'",
-   "score": "Numerical inspection score (higher scores indicate more violations)",
-   "grade": "Letter grade assigned based on inspection (A, B, C, etc.)",
-   "grade_date": "Date when the grade was assigned",
-   "record_date": "Date when this record was entered into the system",
-   "inspection_type": "Type of inspection conducted (e.g., 'Cycle Inspection', 'Pre-permit')",
-   "latitude": "Geographic latitude coordinate of the establishment",
-   "longitude": "Geographic longitude coordinate of the establishment",
-   "community_board": "NYC community board district number",
-   "council_district": "NYC council district number",
-   "census_tract": "Census tract identifier",
-   "bin": "Building Identification Number",
-   "bbl": "Borough, Block, and Lot identifier",
-   "nta": "Neighborhood Tabulation Area code",
-   "location_point1": "Additional location reference point"
-    }
-    
-    bounds = rename_csv_file(file_path="./tmp/sample_nyc.csv")
 
-    print(bounds)
+    bounds = rename_csv_file(file_path="./tmp/sample_nyc.csv")
+    #print(bounds)
 
 
