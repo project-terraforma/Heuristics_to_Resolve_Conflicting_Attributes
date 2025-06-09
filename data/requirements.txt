@@ -15,3 +15,6 @@ sodapy
 rapidfuzz
 osmnx
 duckdb
+dspy
+openai
+dotenv
