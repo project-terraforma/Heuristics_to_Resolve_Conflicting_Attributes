@@ -8,7 +8,8 @@
 import pandas as pd
 import os
 import json
-from analyze import get_descriptions
+from analyze import get_col_descriptions
+from analyze import get_summary 
 from analyze import get_col_names
 
 ## Fow now: default names of database cols
@@ -22,15 +23,7 @@ from analyze import get_col_names
 # If it is a few the cols will be in order of a proper address: 
 
 def make_standard_cols(df, dataset_name, num=0, name_col='dba', address_col=['building', 'street', 'zipcode'], lat_lon=['latitude', 'longitude']):
-    # if num == 1:
-    #     name_col='dba'
-    #     address_col=['building', 'street', 'zipcode']
-    #     lat_lon=['latitude', 'longitude']
-    # else:
-    #     name_col='vendor_formal_name'
-    #     address_col=['address1', 'zip']
-    #     lat_lon=['latitude', 'longitude']
-
+  
     name_col, lat_lon, address_col = get_col_names(df)
     # Rename name_col to unique_name
     df['unique_name'] = df[name_col]
@@ -44,8 +37,6 @@ def make_standard_cols(df, dataset_name, num=0, name_col='dba', address_col=['bu
         raise ValueError("address_col must have at least one column name.")
 
     # Process lat/lon and build unique_lon_lat as dict {x: lon, y: lat}
-    lat_vals = []
-    lon_vals = []
 
     if len(lat_lon) == 2 and isinstance(lat_lon[0], list):
         # lat_lon is in format [[combined_col_name, order]]
@@ -91,7 +82,19 @@ def make_standard_cols(df, dataset_name, num=0, name_col='dba', address_col=['bu
     with open(f"./tmp/{dataset_name}/bounds.json", "w") as f:
         json.dump(bounds, f, indent=2)
 
-    get_descriptions(df, dataset_name)
+    get_col_descriptions(df, dataset_name)
+
+    # Limit BBOX Size
+    if (bounds['xmax'] - bounds['xmin']) * (bounds['ymax'] - bounds['ymin']) >= X:
+        # Bounds are too large, do not analyze dataset
+        # Save that to file 
+        with open(f"./tmp/{dataset_name}/summary.txt", "w") as f:
+            f.write("This dataset contains locations that are too widespread. Getting Overture Data from this region would place a strain on our pipeline. Please chose another dataset or use a subsection of this dataset.")
+
+        return None
+    
+    get_summary(df, dataset_name)
+
 
     return bounds
 

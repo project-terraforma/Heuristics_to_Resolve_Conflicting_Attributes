@@ -39,19 +39,35 @@ class ColumnDescriptionsSignature(Signature):
         "['<col1>: <description>', '<col2>: <description>', ...]"
     ))
 
-# === DSPy Predict Modules ===
+# === DSPy Predict Modules === 
 field_mapper = Predict(FieldMappingSignature)
 summarizer = Predict(DatasetSummarySignature)
 column_describer = Predict(ColumnDescriptionsSignature)
 
-# === Main Analyzer Function ===
-def get_descriptions(df, name):
+# === Main Analyzer Function === 
+def get_summary(df, name):
     columns = list(df.columns)
     sample_rows = df.head(10).to_dict(orient="records")
 
      # Run dataset summary
     summary_response = summarizer(context=f"Columns: {columns}\nSample: {sample_rows}")
     summary = summary_response.summary
+
+    # Prepare directory path
+    folder_path = os.path.join("tmp", name)
+    os.makedirs(folder_path, exist_ok=True)
+    
+    # Write general summary to tmp/name/summary.txt
+    summary_path = os.path.join(folder_path, "summary.txt")
+    with open(summary_path, "w") as f:
+        f.write(summary)
+
+    return 
+
+def get_col_descriptions(df, name):
+    columns = list(df.columns)
+    sample_rows = df.head(10).to_dict(orient="records")
+
 
     # Run column description
     col_desc_response = column_describer(column_list=str(columns))
@@ -68,11 +84,6 @@ def get_descriptions(df, name):
     desc_path = os.path.join(folder_path, "descriptions.json")
     with open(desc_path, "w") as f:
         json.dump(dict(zip(columns, column_descriptions)), f, indent=4)
-
-    # Write general summary to tmp/name/summary.txt
-    summary_path = os.path.join(folder_path, "summary.txt")
-    with open(summary_path, "w") as f:
-        f.write(summary)
     
     return
 
@@ -101,4 +112,7 @@ if __name__ == "__main__":
     result = get_col_names("./tmp/lat_lon.csv")
     print("\n🔎 Final Output Tuple:")
     print(result)
+
+# Bugs: 
+# some fields in address show up as nan
 
