@@ -43,6 +43,15 @@ def compare_n(overture_dataset_path, other_dataset_path, save_path):
     overture_df = pd.read_csv(overture_dataset_path)
     other_df = pd.read_csv(other_dataset_path)
 
+    overture_discrepancy_rows = []
+    other_discrepancy_rows = []
+
+    # bbox too big overture data is empty
+    if overture_df.empty:
+        pd.DataFrame(overture_discrepancy_rows).to_csv(save_path + '/discrepancies_from_overture.csv', index=False)
+        pd.DataFrame(other_discrepancy_rows).to_csv(save_path + '/discrepancies_from_other.csv', index=False)
+        return
+
     other_address_map = {}
     for _, row in other_df.iterrows():
         unique_address = row['unique_address']
@@ -51,8 +60,6 @@ def compare_n(overture_dataset_path, other_dataset_path, save_path):
             key = (number, street)
             other_address_map.setdefault(key, []).append(row)
 
-    overture_discrepancy_rows = []
-    other_discrepancy_rows = []
 
     for _, row in overture_df.iterrows():
         try:
@@ -93,9 +100,8 @@ def compare_n(overture_dataset_path, other_dataset_path, save_path):
                             'similarity': best_score
                         })
 
-    overture_discrepancy_rows.to_csv(save_path + '/overture_discrepancy_rows.csv', index=False)
-    other_discrepancy_rows.to_csv(save_path + '/other_dataset_discrepancy_rows.csv', index=False)
-
+    pd.DataFrame(overture_discrepancy_rows).to_csv(save_path + '/discrepancies_from_overture.csv', index=False)
+    pd.DataFrame(other_discrepancy_rows).to_csv(save_path + '/discrepancies_from_other.csv', index=False)
 
     return {
         'overture_discrepancy_rows': overture_discrepancy_rows,
@@ -107,4 +113,5 @@ def compare_n(overture_dataset_path, other_dataset_path, save_path):
 
 #     pd.DataFrame(result['overture_discrepancy_rows']).to_csv('overture_discrepancy_rows.csv', index=False)
 #     pd.DataFrame(result['other_dataset_discrepancy_rows']).to_csv('other_dataset_discrepancy_rows.csv', index=False)
+
 

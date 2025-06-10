@@ -3,6 +3,9 @@ import pandas as pd
 import json
 import os
 import sys
+from analyze import setup_dspy
+
+setup_dspy()
 
 st.set_page_config(layout="wide")
 
@@ -70,7 +73,7 @@ with st.sidebar.expander("➕ Add Dataset"):
             overture_path = f"./tmp/{dataset_name}/overture_data.csv"  
             summary_path = f"./tmp/{dataset_name}/summary.txt"
             overture_dif_path = f"./tmp/{dataset_name}/discrepancies_from_overture.csv"  
-            dataset_dif_path = f"./tmp/{dataset_name}/discrepancies_from_other.txt"
+            dataset_dif_path = f"./tmp/{dataset_name}/discrepancies_from_other.csv"
 
             st.session_state.uploaded_datasets[dataset_name] = {
                 "file": file_path,
@@ -216,5 +219,6 @@ with col2:
         st.dataframe(df_other_diff, use_container_width=True, height=500)
     else:
         st.info("No dataset loaded yet.")
+
 
 
