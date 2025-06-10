@@ -84,5 +84,10 @@ MIT License
 --- 
 Compare.py can be improved in comparing addresses. Right now, some addresses that are different but similar are treated as the same. The names for these entities are compared, which should not happen. Ex: "45 W 21st St" and "45 W 132nd Street Apt 16N New York NY 10037" are considered to be the same address. Address parsing could also be improved to parse the address zip code, city, state, and country. 
 
-## Features to Implement
+## Future Work
 --- 
+* Make a more robust analyzing process that can extract desired column names for a larger variety of datasets.
+* Add another check (web-scraping) to decide if a name change should be made.
+* Output a file with the rows with discrepancies. This file should be in the format of Overture's data but have the name changed. This is so that a human reviewer can easily commit these changes 
+* Reject a dataset if it does not contain address, name, and lat/lon data.
+* Add a loading screen on streamlit.
