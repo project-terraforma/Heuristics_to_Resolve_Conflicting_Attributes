@@ -23,6 +23,9 @@ def scan_tmp_for_datasets(tmp_dir="./tmp"):
             desc_path = os.path.join(folder_path, "descriptions.json")
             overture_path = os.path.join(folder_path, "overture_data.csv")
             summary_path = os.path.join(folder_path, "summary.txt")
+            overture_dif_path = os.path.join(folder_path, "discrepancies_from_overture.csv")
+            dataset_dif_path = os.path.join(folder_path, "discrepancies_from_other.csv")
+
 
             # Check if all files exist
             if os.path.exists(file_path) and os.path.exists(desc_path) and os.path.exists(overture_path):
@@ -30,7 +33,9 @@ def scan_tmp_for_datasets(tmp_dir="./tmp"):
                     "file": file_path,
                     "description": desc_path,
                     "overture": overture_path,
-                    "summary": summary_path
+                    "summary": summary_path,
+                    "overture_dif_path": overture_dif_path,
+                    "dataset_dif_path": dataset_dif_path
                 }
     return datasets
 
@@ -62,13 +67,17 @@ with st.sidebar.expander("➕ Add Dataset"):
             process_dataset(uploaded_file, dataset_name)
             file_path = f"./tmp/{dataset_name}/{dataset_name}_edited.csv"
             desc_path = f"./tmp/{dataset_name}/descriptions.json"
-            overture_path = f"./tmp/{dataset_name}/overture_data.csv"  # or whatever your naming scheme is
+            overture_path = f"./tmp/{dataset_name}/overture_data.csv"  
             summary_path = f"./tmp/{dataset_name}/summary.txt"
+            overture_dif_path = f"./tmp/{dataset_name}/discrepancies_from_overture.csv"  
+            dataset_dif_path = f"./tmp/{dataset_name}/discrepancies_from_other.txt"
 
             st.session_state.uploaded_datasets[dataset_name] = {
                 "file": file_path,
                 "description": desc_path,
-                "overture": overture_path
+                "overture": overture_path,
+                "overture_dif_path": overture_dif_path,
+                "dataset_dif_path": dataset_dif_path
             }
 
             # Trigger rerun so sidebar updates
@@ -99,10 +108,15 @@ if selected_dataset:
 
     df_dataset = load_csv(dataset_info["file"])
     df_overture = load_csv(dataset_info["overture"])
+    df_overture_diff = load_csv(dataset_info["overture_dif_path"])
+    df_other_diff = load_csv(dataset_info["dataset_dif_path"])
+
 else:
     descriptions = {}
     df_dataset = pd.DataFrame()
     df_overture = pd.DataFrame()
+    df_overture_diff = pd.DataFrame()
+    df_other_diff = pd.DataFrame()
 
 n = dataset_info["file"]
 st.write("dataset_info['file']", n)
@@ -191,15 +205,15 @@ col1, col2 = st.columns(2)
 
 with col1:
     st.markdown("### Overture Box")
-    if not df_overture.empty:
-        st.dataframe(df_overture.head(50), use_container_width=True, height=500)
+    if not df_overture_diff.empty:
+        st.dataframe(df_overture_diff, use_container_width=True, height=500)
     else:
         st.info("No overture data available.")
 
 with col2:
     st.markdown("### Dataset Box")
-    if not df_dataset.empty:
-        st.dataframe(df_dataset.head(50), use_container_width=True, height=500)
+    if not df_other_diff.empty:
+        st.dataframe(df_other_diff, use_container_width=True, height=500)
     else:
         st.info("No dataset loaded yet.")
 
