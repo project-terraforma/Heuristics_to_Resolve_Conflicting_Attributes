@@ -29,12 +29,18 @@ def process_dataset(file_obj, dataset_name):
     if bounds:
         bbox = (bounds['xmin'], bounds['ymin'], bounds['xmax'], bounds['ymax'])
         get_overture_data(bbox, f"./tmp/{dataset_name}")
+        print("calling compare_n")
+        compare_n(f"./tmp/{dataset_name}/overture_data.csv", f"./tmp/{dataset_name}/{dataset_name}_edited.csv", f"./tmp/{dataset_name}")
+    
     else: 
         # Make it an empty file
-        with open(f"./tmp/{dataset_name}/overture_data.csv", "w") as f:
-            pass
-    print("calling compare_n")
-    compare_n(f"./tmp/{dataset_name}/overture_data.csv", f"./tmp/{dataset_name}/{dataset_name}_edited.csv", f"./tmp/{dataset_name}")
+        print("NO BOUNDS")
+        columns = ['No Results Available']
+        pd.DataFrame(columns=columns).to_csv(f"./tmp/{dataset_name}/overture_data.csv", index=False)
+        pd.DataFrame(columns=columns).to_csv(f"./tmp/{dataset_name}/discrepancies_from_overture.csv", index=False)
+        pd.DataFrame(columns=columns).to_csv(f"./tmp/{dataset_name}/discrepancies_from_other.csv", index=False)
+        return
+        
     return 
 
 
@@ -43,4 +49,5 @@ def process_dataset(file_obj, dataset_name):
 #         uploaded_file_like = io.BytesIO(f.read())
 #         process_dataset(uploaded_file_like, dataset_name='nyc_restaurants_2')
     
+
 

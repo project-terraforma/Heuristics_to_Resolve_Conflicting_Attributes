@@ -46,11 +46,11 @@ def compare_n(overture_dataset_path, other_dataset_path, save_path):
     overture_discrepancy_rows = []
     other_discrepancy_rows = []
 
-    # bbox too big overture data is empty
-    if overture_df.empty:
-        pd.DataFrame(overture_discrepancy_rows).to_csv(save_path + '/discrepancies_from_overture.csv', index=False)
-        pd.DataFrame(other_discrepancy_rows).to_csv(save_path + '/discrepancies_from_other.csv', index=False)
-        return
+    # # bbox too big overture data is empty
+    # if overture_df.empty:
+    #     pd.DataFrame(overture_discrepancy_rows).to_csv(save_path + '/discrepancies_from_overture.csv', index=False)
+    #     pd.DataFrame(other_discrepancy_rows).to_csv(save_path + '/discrepancies_from_other.csv', index=False)
+    #     return
 
     other_address_map = {}
     for _, row in other_df.iterrows():
