@@ -102,5 +102,6 @@ def compare_n(overture_dataset_path, other_dataset_path):
 if __name__ == "__main__":
     result = compare_n('./tmp/sample_nyc/overture_data.csv', './tmp/sample_nyc/sample_nyc_edited.csv')
 
-    pd.DataFrame(result['overture_discrepancy_rows']).to_csv('discrepancies_from_overture.csv', index=False)
-    pd.DataFrame(result['other_dataset_discrepancy_rows']).to_csv('discrepancies_from_other.csv', index=False)
+    pd.DataFrame(result['overture_discrepancy_rows']).to_csv('unmatched_overture_rows.csv', index=False)
+    pd.DataFrame(result['other_dataset_discrepancy_rows']).to_csv('closest_other_matches.csv', index=False)
+
