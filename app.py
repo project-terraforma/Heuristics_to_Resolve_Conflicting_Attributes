@@ -79,6 +79,7 @@ with st.sidebar.expander("➕ Add Dataset"):
                 "file": file_path,
                 "description": desc_path,
                 "overture": overture_path,
+                "summary": summary_path,
                 "overture_dif_path": overture_dif_path,
                 "dataset_dif_path": dataset_dif_path
             }
