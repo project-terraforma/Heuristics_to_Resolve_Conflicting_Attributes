@@ -39,7 +39,7 @@ def parse_address1(address):
         return number, street
     return None, None
 
-def compare_n(overture_dataset_path, other_dataset_path):
+def compare_n(overture_dataset_path, other_dataset_path, save_path):
     overture_df = pd.read_csv(overture_dataset_path)
     other_df = pd.read_csv(other_dataset_path)
 
@@ -93,15 +93,18 @@ def compare_n(overture_dataset_path, other_dataset_path):
                             'similarity': best_score
                         })
 
+    overture_discrepancy_rows.to_csv(save_path + '/overture_discrepancy_rows.csv', index=False)
+    other_discrepancy_rows.to_csv(save_path + '/other_dataset_discrepancy_rows.csv', index=False)
+
 
     return {
         'overture_discrepancy_rows': overture_discrepancy_rows,
         'other_dataset_discrepancy_rows': other_discrepancy_rows
     }
 
-if __name__ == "__main__":
-    result = compare_n('./tmp/sample_nyc/overture_data.csv', './tmp/sample_nyc/sample_nyc_edited.csv')
+# if __name__ == "__main__":
+#     result = compare_n('./tmp/sample_nyc/overture_data.csv', './tmp/sample_nyc/sample_nyc_edited.csv', "./tmp/sample_nyc/")
 
-    pd.DataFrame(result['overture_discrepancy_rows']).to_csv('unmatched_overture_rows.csv', index=False)
-    pd.DataFrame(result['other_dataset_discrepancy_rows']).to_csv('closest_other_matches.csv', index=False)
+#     pd.DataFrame(result['overture_discrepancy_rows']).to_csv('overture_discrepancy_rows.csv', index=False)
+#     pd.DataFrame(result['other_dataset_discrepancy_rows']).to_csv('other_dataset_discrepancy_rows.csv', index=False)
 

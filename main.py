@@ -6,6 +6,8 @@ import pandas as pd
 from get_overture_data import get_overture_data
 # from analyze_dataset import get_col_names
 from analyze_dataset import make_standard_cols
+# compare_n(overture_dataset_path, other_dataset_path, save_path):
+from compare import compare_n
 
 # Call first to get bounds.json
 # make_standard_cols(df, dataset_name) --> 
@@ -31,6 +33,8 @@ def process_dataset(file_obj, dataset_name):
         # Make it an empty file
         with open(f"./tmp/{dataset_name}/overture_data.csv", "w") as f:
             pass
+    print("calling compare_n")
+    compare_n(f"./tmp/{dataset_name}/overture_data.csv", f"./tmp/{dataset_name}/{dataset_name}_edited.csv", f"./tmp/{dataset_name}")
     return 
 
 

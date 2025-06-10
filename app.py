@@ -94,7 +94,7 @@ selected_dataset = st.sidebar.radio(
 )
 
 
-st.write("selected_dataset is", selected_dataset)
+# st.write("selected_dataset is", selected_dataset)
 
 #if selected_dataset in st.session_state.uploaded_datasets:
 if selected_dataset:
@@ -119,9 +119,9 @@ else:
     df_other_diff = pd.DataFrame()
 
 n = dataset_info["file"]
-st.write("dataset_info['file']", n)
+#st.write("dataset_info['file']", n)
 n = dataset_info["overture"]
-st.write("dataset_info['overture']", n)
+#st.write("dataset_info['overture']", n)
 
 # --- Main Page Layout ---
 
