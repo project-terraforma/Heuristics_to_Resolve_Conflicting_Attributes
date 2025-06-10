@@ -1,8 +1,0 @@
-Run with:  
-docker-compose up --build
-
-backend:  
-localhost:5005
-
-frontend:  
-localhost:3000
