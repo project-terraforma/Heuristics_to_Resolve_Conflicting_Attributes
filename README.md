@@ -76,4 +76,13 @@ This tool helps identify discrepancies between [Overture Maps](https://overturem
 
 ## 📜 License
 
-MIT License (or your chosen license)
+MIT License
+
+---
+
+## Bugs
+--- 
+Compare.py can be improved in comparing addresses. Right now, some addresses that are different but similar are treated as the same. The names for these entities are compared, which should not happen. Ex: "45 W 21st St" and "45 W 132nd Street Apt 16N New York NY 10037" are considered to be the same address. Address parsing could also be improved to parse the address zip code, city, state, and country. 
+
+## Features to Implement
+--- 
