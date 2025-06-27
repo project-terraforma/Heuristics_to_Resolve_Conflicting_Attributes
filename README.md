@@ -76,7 +76,7 @@ This tool helps identify discrepancies between [Overture Maps](https://overturem
 
 ## 📜 License
 
-MIT License
+Apache 2.0
 
 ---
 
